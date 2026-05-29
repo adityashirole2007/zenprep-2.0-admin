@@ -26,9 +26,9 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onClose, onSa
     exam_shift: question?.exam_shift || (!isEditing ? localStorage.getItem('last_exam_shift') : '') || '',
     text: question?.text || '',
     correct_answer: question?.correct_answer || '',
-    question_image_base64: question?.question_image_base64 || '',
+    question_image_base64: question?.question_image_url || '',
     solution_text: question?.solution_text || '',
-    solution_image_base64: question?.solution_image_base64 || '',
+    solution_image_base64: question?.solution_image_url || '',
     options: (question?.options && Array.isArray(question.options)) 
       ? question.options.map((opt: any) => typeof opt === 'string' ? { text: opt, image_base64: '' } : opt)
       : [{ text: '', image_base64: '' }, { text: '', image_base64: '' }, { text: '', image_base64: '' }, { text: '', image_base64: '' }],
@@ -94,13 +94,18 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onClose, onSa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = {
+    const payload: any = {
       ...formData,
       difficulty: formData.difficulty.toLowerCase(),
       has_diagram: !!formData.question_image_base64 || formData.options.some((opt: any) => opt.image_base64),
       exam_date: formData.exam_date || null,
       exam_shift: formData.exam_shift || null,
+      question_image_url: formData.question_image_base64,
+      solution_image_url: formData.solution_image_base64,
     };
+
+    delete payload.question_image_base64;
+    delete payload.solution_image_base64;
 
     // If type is not mcq, clear options
     if (payload.type !== 'mcq') {
